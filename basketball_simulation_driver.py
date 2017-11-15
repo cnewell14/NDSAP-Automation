@@ -15,6 +15,13 @@ from bs4 import BeautifulSoup
 # Import game scraping functions
 from scrape_one_page_class import getPage
 
+# Import excel placing functions
+from place_game_data_class import placeData
+from place_game_data_class import openBook
+
+# Import openpyxl to find max row of excel doc
+import openpyxl
+
 # Import writing to spreadsheet functions
 from write_to_excel import writeSheet
 
@@ -32,6 +39,9 @@ class Driver:
             then calls the class that stores the data in excel document 
         """
 
+        # Open workbooks and get maxRow
+        wb, ws, maxRow = openBook('test.xlsx', 'Sheet1')
+
         # Call function that returns list of tuples, one for each game
         gameTuplesList, gameLinksList = self.getGames(self.soup)
 
@@ -43,16 +53,22 @@ class Driver:
 
                 # Add winner&loser data to list
                 winnerData, loserData = getPage(gameLinksList[i], gameTuplesList[i])
-                gameDataList.append((winnerData, loserData))
+
+                # Update from Andy
+                # gameDataList.append((winnerData, loserData))
                 
                 if winnerData["Success"] == False or loserData["Success"] == False:
-                    print winnerData
                     sys.exit("Team data could not be accessed! Exiting!")
+                else:
+                    placeData(wb, ws, winnerData, loserData, maxRow+1)
+                    maxRow += 1
                 
                 # maybe add to list then go through list placing data
                 # put function call to place data into excel document here
             # Call function to write results to excel document
-            writeSheet(gameDataList)
+
+            #Update from Andy
+            # writeSheet(gameDataList)
 
         else:
             print "Lists are not the same size!"

@@ -15,6 +15,9 @@ from bs4 import BeautifulSoup
 # Import game scraping functions
 from scrape_one_page_class import getPage
 
+# Import writing to spreadsheet functions
+from write_to_excel import writeSheet
+
 
 class Driver:
     """This class will initiate the data scrape and placement process"""
@@ -31,9 +34,16 @@ class Driver:
 
         # Call function that returns list of tuples, one for each game
         gameTuplesList, gameLinksList = self.getGames(self.soup)
+
+        # Save data into a list first
+        gameDataList = []
+
         if len(gameLinksList) == len(gameTuplesList):
             for i in range(0, len(gameLinksList)):
+
+                # Add winner&loser data to list
                 winnerData, loserData = getPage(gameLinksList[i], gameTuplesList[i])
+                gameDataList.append((winnerData, loserData))
                 
                 if winnerData["Success"] == False or loserData["Success"] == False:
                     print winnerData
@@ -41,6 +51,8 @@ class Driver:
                 
                 # maybe add to list then go through list placing data
                 # put function call to place data into excel document here
+            # Call function to write results to excel document
+            writeSheet(gameDataList)
 
         else:
             print "Lists are not the same size!"
